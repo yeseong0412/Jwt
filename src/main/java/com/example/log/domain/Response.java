@@ -10,7 +10,7 @@ public class Response<T> {
     private String resultCode;
     private T result;
 
-    public static Response<Void> error(String resultCode){
+    public static Response<RefreshResponse> error(String resultCode){
         return new Response(resultCode, null);
     }
 
