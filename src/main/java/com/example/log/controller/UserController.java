@@ -44,8 +44,7 @@ public class UserController {
     }
 
     @PostMapping("/hello")
-    public String hello(@RequestBody UserLoginRequest userLoginRequest) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    public String hello(@RequestBody UserLoginRequest userLoginRequest, Authentication authentication) {
         if (authentication.isAuthenticated()) {
             return "안녕";
         }
