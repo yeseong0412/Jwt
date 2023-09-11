@@ -25,7 +25,7 @@ public class JwtTokenUtil {
 
     public static String createRefreshToken(String userAccount, String key) {
         Date now = new Date();
-        Date expiration = new Date(now.getTime() + Duration.ofDays(30).toMillis());
+        Date expiration = new Date(now.getTime() + Duration.ofDays(30).toMillis()); //30일
         return Jwts.builder()
                 .claim("userAccount", userAccount)
                 .setIssuedAt(now)
