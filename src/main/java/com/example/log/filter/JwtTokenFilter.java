@@ -25,52 +25,58 @@ import java.util.List;
 @RequiredArgsConstructor
 public class JwtTokenFilter extends OncePerRequestFilter {
 
-
     private final UserService userService;
-    private final String secretKey;
 
+    private final String secretKey;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        final String authorizationToken = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (authorizationToken == null || !authorizationToken.startsWith("Bearer ")) {
+        final String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
-        String token;
+
+        String token = authorizationHeader.substring(7);
+
         try {
-            token = authorizationToken.split(" ")[1];
+            if (isExpired(token)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+            Claims claims = extractClaims(token);
+            String userAccount = claims.get("userAccount", String.class);
+
+            User user = userService.getUserByUserAccount(userAccount);
+
+            UsernamePasswordAuthenticationToken authenticationToken =
+                    new UsernamePasswordAuthenticationToken(user.getUserAccount(), null,
+                            List.of(new SimpleGrantedAuthority(user.getUserRole().name())));
+
+            authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+
         } catch (Exception e) {
-            log.error("{} 에러가 발생하여 token 추출에 실패했습니다.",e);
-            filterChain.doFilter(request, response);
-            return;
+            log.error("Failed to process JWT token: {}", e.getMessage());
         }
-
-        if (JwtTokenFilter.isExpired(token, secretKey)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        String userAccount = extractClaims(token,secretKey).get("userAccount").toString();
-        User user = userService.getUserByUserAccount(userAccount);
-
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(user.getUserAccount(), null, List.of(new SimpleGrantedAuthority(user.getUserRole().name())));
-
-        authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
         filterChain.doFilter(request, response);
     }
 
-    private static Claims extractClaims(String token, String secretKey) {
+    private Claims extractClaims(String token) {
         return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
     }
 
-    public static boolean isExpired(String token, String secretKey) {
-        Date expiredDate = extractClaims(token, secretKey).getExpiration();
-        return expiredDate.before(new Date());
+    private boolean isExpired(String token) {
+        try {
+            Claims claims = extractClaims(token);
+            Date expirationDate = claims.getExpiration();
+            return expirationDate != null && expirationDate.before(new Date());
+        } catch (Exception e) {
+            log.error("Failed to parse JWT token: {}", e.getMessage());
+            return true;
+        }
     }
-
-
 }
