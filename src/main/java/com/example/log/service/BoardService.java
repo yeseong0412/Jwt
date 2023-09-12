@@ -18,7 +18,7 @@ public interface BoardService {
                 .id(dto.getId())
                 .title(dto.getTitle())
                 .content(dto.getContent())
-                .writer(dto.getWriter())
+                .writer(null)
                 .build();
     }
 

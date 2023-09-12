@@ -19,7 +19,7 @@ public class Board extends BaseEntity {
     private String title;
     @Column(length = 200, nullable = false)
     private String content;
-    @Column(length = 50, nullable = false)
+    @Column(length = 50)
     private String writer;
 
     public void changeTitle(String title) {
