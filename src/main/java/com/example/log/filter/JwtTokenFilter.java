@@ -26,7 +26,6 @@ import java.util.List;
 public class JwtTokenFilter extends OncePerRequestFilter {
 
     private final UserService userService;
-
     private final String secretKey;
 
     @Override

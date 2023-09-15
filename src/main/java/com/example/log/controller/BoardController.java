@@ -5,6 +5,7 @@ import com.example.log.service.BoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,11 +16,13 @@ public class BoardController {
     @PostMapping("/")
     @ResponseStatus(HttpStatus.CREATED)
     public void register(
-            @RequestBody BoardDto dto
+            @RequestBody BoardDto dto, Authentication authentication
     ){
-        service.register(dto);
+        String username = authentication.getName();
+        service.register(dto,username);
     }
-    // R GET : /{gno},
+
+    // R GET : /{id},
     @GetMapping("/{id}")
     public BoardDto read(
             @PathVariable("id") Long id
@@ -37,10 +40,9 @@ public class BoardController {
                 .body("success");
     }
 
-    // D DELETE : /{gno}
-
-    @DeleteMapping("/{gno}")
-    public void remove(@PathVariable("gno") Long gno){
+    // D DELETE : /{num}
+    @DeleteMapping("/{num}")
+    public void remove(@PathVariable("num") Long gno){
         service.remove(gno);
     }
 }

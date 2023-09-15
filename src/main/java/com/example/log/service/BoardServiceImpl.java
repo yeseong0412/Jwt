@@ -17,21 +17,22 @@ public class BoardServiceImpl implements BoardService {
     private final BoardRepository boardRepository;
 
     @Override
-    public Long register(BoardDto dto) {
+    public Long register(BoardDto dto, String username) {
         Board board = dtoToEntity(dto);
-        boardRepository.save(board);
-        return board.getId();
+        board.changeWriter(username);
+        Board savedBoard = boardRepository.save(board);
+        return savedBoard.getId();
     }
 
     @Override
     public BoardDto read(Long gno) {
-        Optional<Board> result = boardRepository.findById(gno); // 수정된 부분
+        Optional<Board> result = boardRepository.findById(gno);
         return (result.isPresent()) ? entityToDTO(result.get()) : null;
     }
 
     @Override
     public void modify(BoardDto dto) {
-        Optional<Board> result = boardRepository.findById(dto.getId()); // 수정된 부분
+        Optional<Board> result = boardRepository.findById(dto.getId());
         if (result.isPresent()) {
             Board board = result.get();
             board.changeTitle(dto.getTitle());

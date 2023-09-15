@@ -5,7 +5,7 @@ import com.example.log.entity.Board;
 
 public interface BoardService {
     // C
-    Long register(BoardDto dto);
+    Long register(BoardDto dto, String username);
     // R
     BoardDto read(Long gno);
     // U

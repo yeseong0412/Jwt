@@ -38,36 +38,17 @@ public class UserController {
         Map<String, String> token = userService.login(userLoginRequest.getUserAccount(), userLoginRequest.getPassword());
         return Response.success(new UserLoginResponse(token.toString()));
     }
-//
-//    @PostMapping("/hello")
-//    public String hello(Authentication authentication) {
-//        if (authentication != null && authentication.isAuthenticated()) {
-//            // 현재 인증된 사용자 정보 가져오기
-//            String username = authentication.getName(); // 사용자 이름을 가져옵니다.
-//
-//            // 여기에서 사용자 정보를 확인하거나 추가 로직을 구현할 수 있습니다.
-//
-//            return "안녕, " + username;
-//        }
-//        return "실패";
-//    }
 
     @PostMapping("/hello")
     public String hello(Authentication authentication) {
         if (authentication != null && authentication.isAuthenticated()) {
             // 현재 인증된 사용자 정보 가져오기
-            Object principal = authentication;
-            // 여기에서 사용자 정보를 확인하거나 추가 로직을 구현할 수 있습니다.
-            return "안녕, " + principal;
+            String username = authentication.getName();
+            return "안녕, " + username;
         }
         return "실패";
     }
 
-
-//    @GetMapping("hello")
-//    public String UserInfo(){
-//
-//    }
 
 
     @PostMapping("/refresh")
